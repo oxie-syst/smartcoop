@@ -3967,3 +3967,6 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
   font-weight: 700;
   color: #0f172a;
 }
+.cta-section {
+  display: none;
+}
