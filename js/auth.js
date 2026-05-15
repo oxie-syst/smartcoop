@@ -555,15 +555,6 @@ function setupCoopPlannerPage() {
     }
   });
 }
-function generatePlan() {
-  const length = document.getElementById("length").value;
-  const width = document.getElementById("width").value;
-
-  const area = length * width;
-
-  document.getElementById("previewInfo").innerHTML =
-    `${length}m × ${width}m<br><small>${area}m² area</small>`;
-}
 function loadUserInfo() {
   const storedUser =
     localStorage.getItem(SMARTCOOP_USER_KEY) ||
@@ -599,9 +590,18 @@ function generatePlan() {
   const length = Number(document.getElementById("length").value);
   const width = Number(document.getElementById("width").value);
   const chickens = Number(document.getElementById("chickens").value);
+  if (length <= 0 || width <= 0 || chickens <= 0) {
+    alert("Please enter valid dimensions and number of chickens.");
+    return;
+  }
   const price = Number(document.getElementById("price").value);
   const type = document.getElementById("type").value;
   const climate = document.getElementById("climate").value;
+
+  if (length <= 0 || width <= 0 || chickens <= 0) {
+    alert("Please enter valid dimensions and number of chickens.");
+    return;
+  }
 
   const area = length * width;
   const spacePerChicken = area / chickens;
@@ -627,16 +627,58 @@ function generatePlan() {
     ventilation +
     chickenCost;
 
+    const previewBox = document.querySelector(".preview-box");
+  if (previewBox) {
+    previewBox.innerHTML = `
+      <img src="img/1x1.png" alt="3D Coop Plan" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
+      <div class="preview-info" id="previewInfo">
+        ${length}m × ${width}m<br>
+        <small>${area.toFixed(2)}m² area</small>
+      </div>
+    `;
+  }
+
   document.getElementById("previewInfo").innerHTML =
     `${length}m × ${width}m<br><small>${area}m² area</small>`;
 
   document.getElementById("capacityResult").textContent = chickens;
+  const capacityStatus = document.getElementById("capacityStatus");
+  
+  if (spacePerChicken < optimalSpace) {
+    capacityStatus.textContent = "Overcrowded";
+    capacityStatus.style.color = "#dc2626"; // Red
+  } else if (spacePerChicken >= optimalSpace && spacePerChicken <= (optimalSpace + 0.2)) {
+    capacityStatus.textContent = "Optimal Capacity";
+    capacityStatus.style.color = "#047857"; // Green
+  } else {
+    capacityStatus.textContent = "Can fit more";
+    capacityStatus.style.color = "#1d4ed8"; // Blue
+  }
   document.getElementById("spaceUsageResult").textContent =
     `${capacityPercentage.toFixed(0)}%`;
   document.getElementById("spacePerChicken").textContent =
     `${spacePerChicken.toFixed(2)}m² per chicken`;
   document.getElementById("totalAreaText").textContent =
     `${area}m² total area`;
+
+    const ventilationStatus = document.getElementById("ventilationResult");
+    const climateDescP = document.getElementById("climateText");
+  if (ventilationStatus) {
+    if (usagePercentage <= 75) {
+      ventilationStatus.textContent = "Excellent";
+      ventilationStatus.style.color = "#047857"; // Green
+    } else if (usagePercentage > 75 && usagePercentage <= 100) {
+      ventilationStatus.textContent = "Good";
+      ventilationStatus.style.color = "#1d4ed8"; // Blue
+    } else {
+      ventilationStatus.textContent = "Poor";
+      ventilationStatus.style.color = "#dc2626"; // Red
+    }
+  }
+  if (climateDescP) {
+  
+    climateDescP.textContent = `Optimized for ${climate} climate`;
+}
   document.getElementById("climateText").textContent =
     `${climate} optimized`;
 
@@ -2073,4 +2115,77 @@ loadPlans();
 
 if (window.lucide) {
   lucide.createIcons();
+}
+
+
+// --- SMARTCOOP FEATURE POP-UP LOGIC ---
+
+const featureInfo = {
+    'coop': {
+        title: '3D Coop Planner',
+        desc: 'Experience our interactive 3D Decision Support tool. It helps you design your poultry house with precision, ensuring the right dimensions and housing density for a healthier flock.',
+        img: 'img/1x1.png' 
+    },
+    'estimator': {
+        title: 'Cost Estimator',
+        desc: 'Avoid financial surprises. Our system automatically calculates the estimated budget for materials, bird stocks, and initial feed requirements based on your plan.',
+        img: 'img/Cost Estimator.png'
+    },
+    'health': {
+        title: 'AI Health Checker',
+        desc: 'Keep your flock safe with AI-powered guidance. Input symptoms and receive instant preliminary health advice and management tips to prevent disease spread.',
+        img: 'img/AI Health Checker.png'
+    },
+    'breed': {
+        title: 'Breed Recommendation',
+        desc: 'Not sure which chicken to raise? Our system suggests the best breeds based on your climate, available space, and production goals—whether for eggs or meat.',
+        img: 'img/Breed Recommendation.png'
+    },
+    'reports': {
+        title: 'Reports & Analytics',
+        desc: 'Make data-driven decisions. Monitor your farm performance through visual reports on mortality rates, egg production, and overall expenses.',
+        img: 'img/Reports.png'
+    },
+    'alerts': {
+        title: 'Smart Alerts',
+        desc: 'Stay on top of your farm tasks. Receive real-time reminders for feeding schedules, coop cleaning, and vital vaccination dates to ensure zero missed tasks.',
+        img: 'img/Alerts.png'
+    }
+};
+
+function showFeature(key) {
+    const display = document.getElementById('feature-display');
+    const title = document.getElementById('feat-title');
+    const desc = document.getElementById('feat-desc');
+    const img = document.getElementById('feat-img');
+
+    if (featureInfo[key]) {
+        title.innerText = featureInfo[key].title;
+        desc.innerText = featureInfo[key].desc;
+        img.src = featureInfo[key].img;
+
+        display.style.display = 'flex'; 
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeFeature() {
+    const display = document.getElementById('feature-display');
+    display.style.display = 'none'; 
+    document.body.style.overflow = 'auto';
+}
+
+
+window.onclick = function(event) {
+    const display = document.getElementById('feature-display');
+    if (event.target == display) {
+        closeFeature();
+    }
+}
+
+function scrollToSection(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+    }
 }

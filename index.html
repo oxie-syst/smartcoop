@@ -49,14 +49,14 @@
     <section id="features" class="features-section">
       <div class="landing-container">
         <h2>Core Features</h2>
-        <p class="section-subtitle">Everything you need to manage your poultry farm</p>
+        <p class="section-subtitle">Click a feature to see why you need SmartCoop</p>
         <div class="feature-grid">
-          <article class="feature-card green" onclick="goSignup()"><div class="feature-icon">📊</div><h3>Coop Planner</h3><p>Design and visualize your coop with 3D preview, capacity calculations, and cost estimates.</p></article>
-          <article class="feature-card blue" onclick="goSignup()"><div class="feature-icon">₱</div><h3>Cost Estimator</h3><p>Track all expenses and get financial insights.</p></article>
-          <article class="feature-card purple" onclick="goSignup()"><div class="feature-icon">🩺</div><h3>Health Checker</h3><p>AI-powered disease detection with treatment advice.</p></article>
-          <article class="feature-card orange" onclick="goSignup()"><div class="feature-icon">✨</div><h3>Breed Recommendation</h3><p>Get personalized breed suggestions.</p></article>
-          <article class="feature-card indigo" onclick="goSignup()"><div class="feature-icon">📄</div><h3>Reports & Analytics</h3><p>Auto-generated reports with insights.</p></article>
-          <article class="feature-card red" onclick="goSignup()"><div class="feature-icon">🔔</div><h3>Smart Alerts</h3><p>Get timely reminders for farm tasks.</p></article>
+          <article class="feature-card green" onclick="showFeature('coop')"><div class="feature-icon">📊</div><h3>Coop Planner</h3><p>Design and visualize your coop with 3D preview and capacity tools.</p></article>
+          <article class="feature-card blue" onclick="showFeature('estimator')"><div class="feature-icon">₱</div><h3>Cost Estimator</h3><p>Track all expenses and get financial insights.</p></article>
+          <article class="feature-card purple" onclick="showFeature('health')"><div class="feature-icon">🩺</div><h3>Health Checker</h3><p>AI-powered disease detection with treatment advice.</p></article>
+          <article class="feature-card orange" onclick="showFeature('breed')"><div class="feature-icon">✨</div><h3>Breed Recommendation</h3><p>Get personalized breed suggestions.</p></article>
+          <article class="feature-card indigo" onclick="showFeature('reports')"><div class="feature-icon">📄</div><h3>Reports & Analytics</h3><p>Auto-generated reports with insights.</p></article>
+          <article class="feature-card red" onclick="showFeature('alerts')"><div class="feature-icon">🔔</div><h3>Smart Alerts</h3><p>Get timely reminders for farm tasks.</p></article>
         </div>
       </div>
     </section>
@@ -89,43 +89,52 @@
       </div>
     </section>
   </main>
+
   <footer id="contact" class="landing-footer">
-  <div class="landing-container footer-grid">
-    
-    <div>
-      <h2>SMARTCOOP</h2>
-      <p>Smart poultry planning and management for modern farmers.</p>
+    <div class="landing-container footer-grid">
+      <div>
+        <h2>SMARTCOOP</h2>
+        <p>Smart poultry planning and management for modern farmers.</p>
+      </div>
+      <div>
+        <h3>Quick Links</h3>
+        <button onclick="scrollToSection('features')">Features</button>
+        <button onclick="scrollToSection('how-it-works')">How It Works</button>
+        <button onclick="scrollToSection('benefits')">Benefits</button>
+        <a href="login.html">Login</a>
+      </div>
+      <div>
+        <h3>Contact</h3>
+        <p>support@smartcoop.com</p>
+        <p>+63 123 456 7890</p>
+      </div>
+      <div>
+        <h3>Newsletter</h3>
+        <p>Stay updated with farming tips and features.</p>
+        <form id="newsletterForm" class="newsletter-form">
+          <input id="newsletterEmail" type="email" placeholder="Your email" required />
+          <button type="submit">Subscribe</button>
+        </form>
+      </div>
     </div>
+    <div class="footer-bottom">© 2026 SMARTCOOP. All rights reserved.</div>
+  </footer>
 
-    <div>
-      <h3>Quick Links</h3>
-      <button onclick="scrollToSection('features')">Features</button>
-      <button onclick="scrollToSection('how-it-works')">How It Works</button>
-      <button onclick="scrollToSection('benefits')">Benefits</button>
-      <a href="login.html">Login</a>
+  <div id="feature-display" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <button class="close-btn" onclick="closeFeature()">&times;</button>
+      <div class="modal-content">
+        <div class="modal-image-wrap">
+          <img src="" id="feat-img" alt="Feature Preview">
+        </div>
+        <div class="modal-text">
+          <h3 id="feat-title">Feature Title</h3>
+          <p id="feat-desc">Feature description.</p>
+          <a href="signup.html" class="modal-signup-btn">Sign Up to Unlock Full Access</a>
+        </div>
+      </div>
     </div>
-
-    <div>
-      <h3>Contact</h3>
-      <p>support@smartcoop.com</p>
-      <p>+63 123 456 7890</p>
-    </div>
-
-    <div>
-      <h3>Newsletter</h3>
-      <p>Stay updated with farming tips and features.</p>
-      <form id="newsletterForm" class="newsletter-form">
-        <input id="newsletterEmail" type="email" placeholder="Your email" required />
-        <button type="submit">Subscribe</button>
-      </form>
-    </div>
-
   </div>
-
-  <div class="footer-bottom">
-    © 2026 SMARTCOOP. All rights reserved.
-  </div>
-</footer>
 
   <div id="toast" class="toast hidden"></div>
   <script src="js/auth.js"></script>

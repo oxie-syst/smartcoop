@@ -78,18 +78,19 @@
           <div class="input-row">
             <div class="input-group">
               <label>Length (m)</label>
-              <input id="length" type="number" min="1" step="0.5" value="4">
+              <input id="length" type="number" min="1" step="0.5">
             </div>
 
             <div class="input-group">
               <label>Width (m)</label>
-              <input id="width" type="number" min="1" step="0.5" value="3">
+              <input id="width" type="number" min="1" step="0.5">
             </div>
           </div>
 
           <div class="input-group">
             <label>Chicken Type</label>
             <select id="type">
+              <option value="" disabled selected>Select Chicken Type</option>
               <option>Layers (Egg Production)</option>
               <option>Broilers</option>
               <option>Dual Purpose</option>
@@ -99,6 +100,7 @@
           <div class="input-group">
             <label>Climate</label>
             <select id="climate">
+              <option value="" disabled selected>Select Climate</option>
               <option>Tropical</option>
               <option>Temperate</option>
               <option>Cold</option>
@@ -108,12 +110,12 @@
 
           <div class="input-group">
             <label>Number of Chickens</label>
-            <input id="chickens" type="number" min="1" step="1" value="25">
+            <input id="chickens" type="number" min="1" step="1">
           </div>
 
           <div class="input-group">
             <label>Price per Chicken (₱)</label>
-            <input id="price" type="number" min="0" value="150">
+            <input id="price" type="number" min="0">
           </div>
 
           <button class="primary-btn" onclick="generatePlan()">
@@ -145,8 +147,7 @@
             <div class="cube">📦</div>
 
             <div class="preview-info" id="previewInfo">
-              4m × 3m<br>
-              <small>12m² area</small>
+                <pre id="output"></pre>
             </div>
           </div>
 
@@ -154,25 +155,25 @@
             <div class="analysis-cards">
               <div class="analysis-card">
                 <h3>Capacity</h3>
-                <h2 id="capacityResult">25</h2>
-                <span id="capacityStatus">Can fit more</span>
-                <p id="spacePerChicken">0.48m² per chicken</p>
+                <h2 id="capacityResult">0</h2>
+                <span id="capacityStatus">Awaiting calculation...</span> <p id="spacePerChicken">0m² per chicken</p>
+                <p id="spacePerChicken"></p>
               </div>
 
               <div class="analysis-card">
                 <h3>Space Usage</h3>
-                <h2 id="spaceUsageResult">100%</h2>
+                <h2 id="spaceUsageResult"></h2>
                 <div class="usage-bar">
                   <div id="usageBarFill"></div>
                 </div>
-                <p id="totalAreaText">12m² total area</p>
+                <p id="totalAreaText"></p>
               </div>
 
               <div class="analysis-card">
                 <h3>Ventilation</h3>
-                <h2>Good</h2>
-                <span class="good-badge">✓ Adequate</span>
-                <p id="climateText">Tropical optimized</p>
+                <h2 id="ventilationStatus">Good</h2>
+                <span class="good-badge"> Adequate</span>
+                <p id="climateText">Climate optimized</p>
               </div>
             </div>
 
