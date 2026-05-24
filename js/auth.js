@@ -1462,7 +1462,7 @@ function loadMortalityRecords(data) {
   `).join("");
 }
 
-// --- 4. CHICKEN TAB (Ito yung bago mong columns) ---
+// --- 4. CHICKEN TAB ---
 function loadChickenRecords(data) {
   setText("recordPanelTitle", "Chicken Inventory Records");
   setText("recordPanelSubtitle", "Manage active chicken batches, stocks, and breeds");

@@ -173,20 +173,26 @@
     </section>
   </main>
 
-  <div id="recordModal" class="coop-modal hidden">
-    <div class="coop-modal-card reminder-modal">
-      <button class="modal-x" onclick="closeRecordModal()">×</button>
-      <h2 id="recordModalTitle">Add Expense</h2>
-      <p class="modal-subtitle">Enter the record details below</p>
+<div id="recordModal" class="coop-modal hidden">
+  <div class="coop-modal-card reminder-modal" style="display: flex !important; flex-direction: column !important; min-height: 300px !important;">
+    
+    <button class="modal-x" onclick="closeRecordModal()" style="align-self: flex-end;">×</button>
+    <h2 id="recordModalTitle">Add Record</h2>
+    <p class="modal-subtitle">Enter the record details below</p>
 
-      <div id="recordFormFields"></div>
+    <div id="recordFormFields" style="flex: 1 !important; overflow-y: auto !important; margin: 15px 0 !important;"></div>
 
-      <div class="modal-footer">
-        <button class="model-btn" onclick="saveRecord()">Save</button>
-        <button class="cost-btn" onclick="closeRecordModal()">Cancel</button>
-      </div>
+    <div class="modal-footer" style="display: flex !important; justify-content: flex-end !important; gap: 10px !important; padding: 10px 0 !important; border-top: 1px solid #e2e8f0 !important; width: 100% !important;">
+      <button class="model-btn" onclick="saveRecord()" style="display: inline-block !important; padding: 8px 16px !important; cursor: pointer !important; background-color: #2563eb !important; color: white !important; border: none !important; border-radius: 6px !important;">
+        Save
+      </button>
+      <button class="cost-btn" onclick="closeRecordModal()" style="display: inline-block !important; padding: 8px 16px !important; cursor: pointer !important; background-color: #e2e8f0 !important; color: #475569 !important; border: none !important; border-radius: 6px !important;">
+        Cancel
+      </button>
     </div>
+    
   </div>
+</div>
 
   <script src="js/auth.js"></script>
   <script>if (window.lucide) lucide.createIcons();</script>
