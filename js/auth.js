@@ -1306,88 +1306,79 @@ function deleteReminder(id) {
   saveAlertsData(alerts);
   loadAlertsPage();
 }
-let activeRecordTab = "expenses";
-let editingRecordId = null;
 
-function getRecordData() {
-  const saved = JSON.parse(localStorage.getItem("smartcoop_records") || "null");
+// Variable kung anong tab ang kasalukuyang nakabukas (Default: expenses)
+let activeRecordTab = 'expenses'; 
+let editId = null;
+// --- BAGONG EDIT FUNCTION ---
+function editRecord(id) {
+  editId = id; // I-set ang ID na ie-edit natin
+  openRecordModal(); // Buksan ang modal (Salamat sa logic sa itaas, automatic na may laman na ang form fields nito!)
+}
+// Kukuha ng data mula sa localStorage para hindi mabura kapag nag-refresh ka habang nagte-testing
+let data = JSON.parse(localStorage.getItem('farmData')) || { 
+  expenses: [], 
+  eggs: [], 
+  mortality: [], 
+  chicken: [], 
+  meat: [] 
+};
 
-  return saved || {
-    expenses: [
-      { id: 1, date: "2026-03-20", coop: "Backyard Coop", category: "Labor", description: "Farm worker wages", amount: 3500 },
-      { id: 2, date: "2026-03-15", coop: "Main Coop", category: "Utilities", description: "Electricity for heating", amount: 850 },
-      { id: 3, date: "2026-03-10", coop: "Backyard Coop", category: "Medicine", description: "Vaccination supplies", amount: 1200 },
-      { id: 4, date: "2026-03-05", coop: "Main Coop", category: "Feed", description: "Broiler feed purchase", amount: 8500 },
-      { id: 5, date: "2026-03-01", coop: "Backyard Coop", category: "Feed", description: "Starter feed for layers", amount: 5250 }
-    ],
-    eggs: [
-      { id: 1, date: "2026-03-20", coop: "Backyard Coop", eggs: 25, notes: "Good production" },
-      { id: 2, date: "2026-03-19", coop: "Main Coop", eggs: 20, notes: "Normal" },
-      { id: 3, date: "2026-03-18", coop: "Backyard Coop", eggs: 18, notes: "" },
-      { id: 4, date: "2026-03-17", coop: "Main Coop", eggs: 22, notes: "" },
-      { id: 5, date: "2026-03-16", coop: "Backyard Coop", eggs: 15, notes: "" }
-    ],
-    mortality: [
-      { id: 1, date: "2026-03-12", coop: "Backyard Coop", deaths: 1, cause: "Natural causes", notes: "Old bird" },
-      { id: 2, date: "2026-03-08", coop: "Main Coop", deaths: 1, cause: "Unknown", notes: "Observed weakness" }
-    ]
-  };
+// Helper function para sa pagpapakita ng text sa mga elements
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = text;
 }
 
-function saveRecordData(data) {
-  localStorage.setItem("smartcoop_records", JSON.stringify(data));
-}
-
-function loadRecordsPage() {
-  const body = document.getElementById("recordTableBody");
-  if (!body) return;
-
-  const data = getRecordData();
-
-  const totalExpenses = data.expenses.reduce((s, e) => s + e.amount, 0);
-  const totalEggs = data.eggs.reduce((s, e) => s + e.eggs, 0);
-  const totalDeaths = data.mortality.reduce((s, m) => s + m.deaths, 0);
-  const mortalityRate = ((totalDeaths / 75) * 100).toFixed(2);
-
-  setText("recordTotalExpenses", `₱${totalExpenses.toLocaleString()}`);
-  setText("recordExpenseCount", `${data.expenses.length} transactions`);
-  setText("recordTotalEggs", totalEggs);
-  setText("recordEggCount", `${data.eggs.length} collection logs`);
-  setText("recordMortalityRate", `${mortalityRate}%`);
-  setText("recordDeathCount", `${totalDeaths} total deaths`);
-
-  document.querySelectorAll(".record-tabs button").forEach(btn => btn.classList.remove("active"));
-  const tabIndex = activeRecordTab === "expenses" ? 0 : activeRecordTab === "eggs" ? 1 : 2;
-  const activeBtn = document.querySelectorAll(".record-tabs button")[tabIndex];
-  if (activeBtn) activeBtn.classList.add("active");
-
-  if (activeRecordTab === "expenses") loadExpenseRecords(data);
-  if (activeRecordTab === "eggs") loadEggRecords(data);
-  if (activeRecordTab === "mortality") loadMortalityRecords(data);
-
-  if (window.lucide) lucide.createIcons();
-}
-
+// Function kapag pinindot ang mga tab buttons sa itaas
 function switchRecordTab(tab) {
   activeRecordTab = tab;
+  
+  const tabs = document.querySelectorAll('.record-tabs button');
+  tabs.forEach(btn => btn.classList.remove('active'));
+  
+  const clickedBtn = Array.from(tabs).find(btn => btn.getAttribute('onclick').includes(tab));
+  if (clickedBtn) clickedBtn.classList.add('active');
+
   loadRecordsPage();
 }
 
+// Function para i-refresh at i-load ang tamang table base sa active tab
+function loadRecordsPage() {
+  if (activeRecordTab === 'expenses') {
+    loadExpenseRecords(data);
+  } else if (activeRecordTab === 'eggs') {
+    loadEggRecords(data);
+  } else if (activeRecordTab === 'mortality') {
+    loadMortalityRecords(data);
+  } else if (activeRecordTab === 'chicken') { 
+    loadChickenRecords(data);
+  } else if (activeRecordTab === 'meat') {    
+    loadMeatRecords(data);
+  }
+
+  // Kung gumagamit ka ng Lucide icons, pilitin nitong i-render ang mga icons sa table buttons
+  if (window.lucide) lucide.createIcons();
+}
+
+// --- 1. EXPENSES TAB ---
 function loadExpenseRecords(data) {
   setText("recordPanelTitle", "Expense Records");
   setText("recordPanelSubtitle", "Track all farm-related expenses");
   document.getElementById("recordAddBtn").innerHTML = `<i data-lucide="plus"></i> Add Expense`;
 
-  const search = document.getElementById("recordSearchInput").value.toLowerCase();
-  const category = document.getElementById("recordCategoryFilter").value;
+  const searchInput = document.getElementById("recordSearchInput");
+  const search = searchInput ? searchInput.value.toLowerCase() : "";
+  const filterInput = document.getElementById("recordCategoryFilter");
+  const category = filterInput ? filterInput.value : "all";
 
-  document.getElementById("recordCategoryFilter").style.display = "block";
+  if (filterInput) filterInput.style.display = "block";
   document.getElementById("recordTableHead").innerHTML = `
     <tr><th>Date</th><th>Coop</th><th>Category</th><th>Description</th><th>Amount</th><th>Actions</th></tr>
   `;
 
-  const filtered = data.expenses.filter(e =>
-    e.description.toLowerCase().includes(search) &&
+  const filtered = (data.expenses || []).filter(e =>
+    (e.description || "").toLowerCase().includes(search) &&
     (category === "all" || e.category === category)
   );
 
@@ -1410,47 +1401,337 @@ function loadExpenseRecords(data) {
   `).join("");
 }
 
+// --- 2. EGGS TAB ---
 function loadEggRecords(data) {
   setText("recordPanelTitle", "Egg Collection Logs");
   setText("recordPanelSubtitle", "Track daily egg production");
   document.getElementById("recordAddBtn").innerHTML = `<i data-lucide="plus"></i> Add Egg Record`;
-  document.getElementById("recordCategoryFilter").style.display = "none";
+  if (document.getElementById("recordCategoryFilter")) document.getElementById("recordCategoryFilter").style.display = "none";
 
   document.getElementById("recordTableHead").innerHTML = `
     <tr><th>Date</th><th>Coop</th><th>Number of Eggs</th><th>Notes</th><th>Actions</th></tr>
   `;
 
-  const dataRows = data.eggs;
-  setText("runningTotal", dataRows.reduce((s, e) => s + e.eggs, 0));
+  const dataRows = data.eggs || [];
+  setText("runningTotal", `Total Eggs: ${dataRows.reduce((s, e) => s + e.eggs, 0).toLocaleString()}`);
 
   document.getElementById("recordTableBody").innerHTML = dataRows.map(e => `
     <tr>
-      <td>${e.date}</td><td>${e.coop}</td><td>${e.eggs}</td><td>${e.notes || "-"}</td>
-      <td><div class="table-actions"><button onclick="editRecord(${e.id})"><i data-lucide="edit"></i></button><button class="delete" onclick="deleteRecord(${e.id})"><i data-lucide="trash-2"></i></button></div></td>
+      <td>${e.date}</td>
+      <td>${e.coop}</td>
+      <td>${e.eggs.toLocaleString()}</td>
+      <td>${e.notes || "-"}</td>
+      <td>
+        <div class="table-actions">
+          <button onclick="editRecord(${e.id})"><i data-lucide="edit"></i></button>
+          <button class="delete" onclick="deleteRecord(${e.id})"><i data-lucide="trash-2"></i></button>
+        </div>
+      </td>
     </tr>
   `).join("");
 }
 
+// --- 3. MORTALITY TAB ---
 function loadMortalityRecords(data) {
   setText("recordPanelTitle", "Mortality Records");
   setText("recordPanelSubtitle", "Track chicken health and mortality");
   document.getElementById("recordAddBtn").innerHTML = `<i data-lucide="plus"></i> Add Mortality Record`;
-  document.getElementById("recordCategoryFilter").style.display = "none";
+  if (document.getElementById("recordCategoryFilter")) document.getElementById("recordCategoryFilter").style.display = "none";
 
   document.getElementById("recordTableHead").innerHTML = `
     <tr><th>Date</th><th>Coop</th><th>Deaths</th><th>Cause</th><th>Notes</th><th>Actions</th></tr>
   `;
 
-  const dataRows = data.mortality;
+  const dataRows = data.mortality || [];
   setText("runningTotal", `Total Deaths: ${dataRows.reduce((s, e) => s + e.deaths, 0)}`);
 
   document.getElementById("recordTableBody").innerHTML = dataRows.map(e => `
     <tr>
-      <td>${e.date}</td><td>${e.coop}</td><td>${e.deaths}</td><td><span class="badge">${e.cause}</span></td><td>${e.notes || "-"}</td>
-      <td><div class="table-actions"><button onclick="editRecord(${e.id})"><i data-lucide="edit"></i></button><button class="delete" onclick="deleteRecord(${e.id})"><i data-lucide="trash-2"></i></button></div></td>
+      <td>${e.date}</td>
+      <td>${e.coop}</td>
+      <td>${e.deaths}</td>
+      <td><span class="badge">${e.cause}</span></td>
+      <td>${e.notes || "-"}</td>
+      <td>
+        <div class="table-actions">
+          <button onclick="editRecord(${e.id})"><i data-lucide="edit"></i></button>
+          <button class="delete" onclick="deleteRecord(${e.id})"><i data-lucide="trash-2"></i></button>
+        </div>
+      </td>
     </tr>
   `).join("");
 }
+
+// --- 4. CHICKEN TAB (Ito yung bago mong columns) ---
+function loadChickenRecords(data) {
+  setText("recordPanelTitle", "Chicken Inventory Records");
+  setText("recordPanelSubtitle", "Manage active chicken batches, stocks, and breeds");
+  document.getElementById("recordAddBtn").innerHTML = `<i data-lucide="plus"></i> Add Chicken`;
+  if (document.getElementById("recordCategoryFilter")) document.getElementById("recordCategoryFilter").style.display = "none";
+
+  document.getElementById("recordTableHead").innerHTML = `
+    <tr><th>Date</th><th>Coop</th><th>No. of Chicken/s</th><th>Stage</th><th>Days</th><th>Actions</th></tr>
+  `;
+
+  const dataRows = data.chicken || [];
+  setText("runningTotal", `Total Active Chickens: ${dataRows.reduce((s, e) => s + e.quantity, 0).toLocaleString()} heads`);
+
+  document.getElementById("recordTableBody").innerHTML = dataRows.map(e => `
+    <tr>
+      <td>${e.date}</td>
+      <td>${e.coop}</td>
+      <td>${e.quantity.toLocaleString()}</td>
+      <td><span class="badge">${e.stage}</span></td>
+      <td>${e.days} days</td>
+      <td>
+        <div class="table-actions">
+          <button onclick="editRecord(${e.id})"><i data-lucide="edit"></i></button>
+          <button class="delete" onclick="deleteRecord(${e.id})"><i data-lucide="trash-2"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+// --- 5. MEAT TAB ---
+function loadMeatRecords(data) {
+  setText("recordPanelTitle", "Meat Production Logs");
+  setText("recordPanelSubtitle", "Track broiler harvests and total weight production");
+  document.getElementById("recordAddBtn").innerHTML = `<i data-lucide="plus"></i> Add Meat Log`;
+  if (document.getElementById("recordCategoryFilter")) document.getElementById("recordCategoryFilter").style.display = "none";
+
+  document.getElementById("recordTableHead").innerHTML = `
+    <tr><th>Harvest Date</th><th>Coop / Batch</th><th>Birds Harvested</th><th>Total Weight</th><th>Actions</th></tr>
+  `;
+
+  const dataRows = data.meat || [];
+  setText("runningTotal", `Total Harvested: ${dataRows.reduce((s, e) => s + e.weight, 0).toLocaleString()} kg`);
+
+  document.getElementById("recordTableBody").innerHTML = dataRows.map(e => `
+    <tr>
+      <td>${e.date}</td>
+      <td>${e.coopOrBatch}</td>
+      <td>${e.birdsCount || "-"} birds</td>
+      <td><strong>${e.weight} kg</strong></td>
+      <td>
+        <div class="table-actions">
+          <button onclick="editRecord(${e.id})"><i data-lucide="edit"></i></button>
+          <button class="delete" onclick="deleteRecord(${e.id})"><i data-lucide="trash-2"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+// --- UPDATE SA OPEN MODAL (May dagdag na logic para mag-populate ng data kapag nag-e-edit) ---
+function openRecordModal() {
+  const modal = document.getElementById("recordModal");
+  const modalTitle = document.getElementById("recordModalTitle");
+  const formFields = document.getElementById("recordFormFields");
+
+  modal.classList.remove("hidden");
+
+  // Reusable Dropdown HTML para sa Coop 1-4
+  const coopDropdownHTML = `
+    <select id="commonCoop" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+      <option value="Coop 1">Coop 1</option>
+      <option value="Coop 2">Coop 2</option>
+      <option value="Coop 3">Coop 3</option>
+      <option value="Coop 4">Coop 4</option>
+    </select>
+  `;
+
+  // 1. I-render ang blangkong form base sa active tab
+  if (activeRecordTab === 'expenses') {
+    modalTitle.innerText = editId ? "Edit Expense" : "Add Expense";
+    formFields.innerHTML = `
+      <div class="form-group" style="margin-bottom:12px;"><label>Date</label><input type="date" id="expenseDate" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Coop</label>${coopDropdownHTML.replace('id="commonCoop"', 'id="expenseCoop"')}</div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Category</label><input type="text" id="expenseCategory" placeholder="e.g., Feeds" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Description</label><input type="text" id="expenseDesc" placeholder="Bought 2 sacks" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Amount</label><input type="number" id="expenseAmount" placeholder="0" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+    `;
+  } 
+  else if (activeRecordTab === 'eggs') {
+    modalTitle.innerText = editId ? "Edit Egg Collection" : "Log Egg Collection";
+    formFields.innerHTML = `
+      <div class="form-group" style="margin-bottom:12px;"><label>Date</label><input type="date" id="eggDate" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Coop</label>${coopDropdownHTML.replace('id="commonCoop"', 'id="eggCoop"')}</div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Number of Eggs</label><input type="number" id="eggCount" placeholder="0" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Notes</label><input type="text" id="eggNotes" placeholder="Good quality" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+    `;
+  } 
+  else if (activeRecordTab === 'mortality') {
+    modalTitle.innerText = editId ? "Edit Mortality Log" : "Log Mortality";
+    formFields.innerHTML = `
+      <div class="form-group" style="margin-bottom:12px;"><label>Date</label><input type="date" id="mortalityDate" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Coop</label>${coopDropdownHTML.replace('id="commonCoop"', 'id="mortalityCoop"')}</div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Deaths</label><input type="number" id="mortalityDeaths" placeholder="0" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Cause</label><input type="text" id="mortalityCause" placeholder="e.g., Heat stress" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Notes</label><input type="text" id="mortalityNotes" placeholder="Optional..." style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+    `;
+  } 
+  else if (activeRecordTab === 'chicken') {
+    modalTitle.innerText = editId ? "Edit Chicken Batch" : "Add Chicken Batch";
+    formFields.innerHTML = `
+      <div class="form-group" style="margin-bottom:12px;"><label>Date</label><input type="date" id="chickenDate" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Coop</label>${coopDropdownHTML.replace('id="commonCoop"', 'id="chickenCoop"')}</div>
+      <div class="form-group" style="margin-bottom:12px;"><label>No. of Chicken/s</label><input type="number" id="chickenQty" placeholder="0" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>Stage</label>
+        <select id="chickenStage" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+          <option value="Chicks">Chicks</option>
+          <option value="Grower">Grower</option>
+          <option value="Layer">Layer</option>
+          <option value="Broiler">Broiler</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Days</label><input type="number" id="chickenDays" placeholder="0" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+    `;
+  } 
+  else if (activeRecordTab === 'meat') {
+    modalTitle.innerText = editId ? "Edit Meat Log" : "Add Meat Production Log";
+    formFields.innerHTML = `
+      <div class="form-group" style="margin-bottom:12px;"><label>Harvest Date</label><input type="date" id="meatDate" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Coop / Batch Reference</label>${coopDropdownHTML.replace('id="commonCoop"', 'id="meatCoop"')}</div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Birds Harvested (Count)</label><input type="number" id="meatBirdsCount" placeholder="0" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+      <div class="form-group" style="margin-bottom:12px;"><label>Total Weight (kg)</label><input type="number" step="0.01" id="meatWeight" placeholder="0.00" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></div>
+    `;
+  }
+
+  // 2. Kung EDIT mode, hahanapin natin ang lumang data at awtomatikong isusulat sa mga inputs
+  if (editId) {
+    const currentList = data[activeRecordTab] || [];
+    const recordToEdit = currentList.find(r => r.id === editId);
+
+    if (recordToEdit) {
+      if (activeRecordTab === 'expenses') {
+        document.getElementById("expenseDate").value = recordToEdit.date;
+        document.getElementById("expenseCoop").value = recordToEdit.coop;
+        document.getElementById("expenseCategory").value = recordToEdit.category;
+        document.getElementById("expenseDesc").value = recordToEdit.description;
+        document.getElementById("expenseAmount").value = recordToEdit.amount;
+      } else if (activeRecordTab === 'eggs') {
+        document.getElementById("eggDate").value = recordToEdit.date;
+        document.getElementById("eggCoop").value = recordToEdit.coop;
+        document.getElementById("eggCount").value = recordToEdit.eggs;
+        document.getElementById("eggNotes").value = recordToEdit.notes;
+      } else if (activeRecordTab === 'mortality') {
+        document.getElementById("mortalityDate").value = recordToEdit.date;
+        document.getElementById("mortalityCoop").value = recordToEdit.coop;
+        document.getElementById("mortalityDeaths").value = recordToEdit.deaths;
+        document.getElementById("mortalityCause").value = recordToEdit.cause;
+        document.getElementById("mortalityNotes").value = recordToEdit.notes;
+      } else if (activeRecordTab === 'chicken') {
+        document.getElementById("chickenDate").value = recordToEdit.date;
+        document.getElementById("chickenCoop").value = recordToEdit.coop;
+        document.getElementById("chickenQty").value = recordToEdit.quantity;
+        document.getElementById("chickenStage").value = recordToEdit.stage;
+        document.getElementById("chickenDays").value = recordToEdit.days;
+      } else if (activeRecordTab === 'meat') {
+        document.getElementById("meatDate").value = recordToEdit.date;
+        document.getElementById("meatCoop").value = recordToEdit.coopOrBatch;
+        document.getElementById("meatBirdsCount").value = recordToEdit.birdsCount;
+        document.getElementById("meatWeight").value = recordToEdit.weight;
+      }
+    }
+  }
+}
+
+// --- UPDATE SA CLOSE MODAL (Iri-reset si editId para bumalik sa Add mode sa susunod) ---
+function closeRecordModal() {
+  document.getElementById("recordModal").classList.add("hidden");
+  editId = null; 
+}
+
+// --- UPDATE SA SAVE RECORD (Mag-aadd kung bago, mag-a-update naman kung ie-edit) ---
+function saveRecord() {
+  let recordData = {};
+
+  // Kunin ang mga values galing sa form depende sa kung anong active tab
+  if (activeRecordTab === 'expenses') {
+    recordData = {
+      date: document.getElementById("expenseDate").value,
+      coop: document.getElementById("expenseCoop").value,
+      category: document.getElementById("expenseCategory").value,
+      description: document.getElementById("expenseDesc").value,
+      amount: parseFloat(document.getElementById("expenseAmount").value) || 0
+    };
+  } 
+  else if (activeRecordTab === 'eggs') {
+    recordData = {
+      date: document.getElementById("eggDate").value,
+      coop: document.getElementById("eggCoop").value,
+      eggs: parseInt(document.getElementById("eggCount").value) || 0,
+      notes: document.getElementById("eggNotes").value
+    };
+  } 
+  else if (activeRecordTab === 'mortality') {
+    recordData = {
+      date: document.getElementById("mortalityDate").value,
+      coop: document.getElementById("mortalityCoop").value,
+      deaths: parseInt(document.getElementById("mortalityDeaths").value) || 0,
+      cause: document.getElementById("mortalityCause").value,
+      notes: document.getElementById("mortalityNotes").value
+    };
+  } 
+  else if (activeRecordTab === 'chicken') {
+    recordData = {
+      date: document.getElementById("chickenDate").value,
+      coop: document.getElementById("chickenCoop").value,
+      quantity: parseInt(document.getElementById("chickenQty").value) || 0,
+      stage: document.getElementById("chickenStage").value,
+      days: parseInt(document.getElementById("chickenDays").value) || 0
+    };
+  } 
+  else if (activeRecordTab === 'meat') {
+    recordData = {
+      date: document.getElementById("meatDate").value,
+      coopOrBatch: document.getElementById("meatCoop").value,
+      birdsCount: parseInt(document.getElementById("meatBirdsCount").value) || 0,
+      weight: parseFloat(document.getElementById("meatWeight").value) || 0
+    };
+  }
+
+  // LOGIC PARA SA EDIT VS ADD NEW
+  if (editId) {
+    // KUNG EDIT: Hahanapin ang kaparehas na ID sa array at o-overwrite-an ang laman nito
+    const index = data[activeRecordTab].findIndex(r => r.id === editId);
+    if (index !== -1) {
+      data[activeRecordTab][index] = { id: editId, ...recordData };
+    }
+  } else {
+    // KUNG ADD NEW: Gagawa ng bagong natatanging ID gamit ang Date.now() at ipu-push sa listahan
+    recordData.id = Date.now();
+    if (!data[activeRecordTab]) data[activeRecordTab] = [];
+    data[activeRecordTab].push(recordData);
+  }
+
+  // Isave ang binagong array sa LocalStorage
+  localStorage.setItem('farmData', JSON.stringify(data));
+
+  closeRecordModal();
+  loadRecordsPage(); 
+}
+
+// --- DELETE RECORD (Para makapagbura ka kapag mali ang test values mo) ---
+function deleteRecord(id) {
+  if (confirm("Are you sure you want to delete this record?")) {
+    if (activeRecordTab === 'expenses') data.expenses = data.expenses.filter(e => e.id !== id);
+    else if (activeRecordTab === 'eggs') data.eggs = data.eggs.filter(e => e.id !== id);
+    else if (activeRecordTab === 'mortality') data.mortality = data.mortality.filter(e => e.id !== id);
+    else if (activeRecordTab === 'chicken') data.chicken = data.chicken.filter(e => e.id !== id);
+    else if (activeRecordTab === 'meat') data.meat = data.meat.filter(e => e.id !== id);
+
+    localStorage.setItem('farmData', JSON.stringify(data));
+    loadRecordsPage();
+  }
+}
+
+// Unang load ng system
+document.addEventListener("DOMContentLoaded", () => {
+  loadRecordsPage();
+});
 function loadReportsPage() {
   if (!document.getElementById("eggTrendChart")) return;
 
@@ -2188,4 +2469,74 @@ function scrollToSection(id) {
     if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
     }
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+
+    // SEARCH LOGIC (Opsyonal: Idagdag lang kung may search bar ka)
+    const searchInput = document.getElementById('breedSearch');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function () {
+            let filter = searchInput.value.toLowerCase();
+            let cards = document.querySelectorAll('.info-card');
+
+            cards.forEach(card => {
+                let title = card.querySelector('h2').innerText.toLowerCase();
+                if (title.includes(filter)) {
+                    card.style.display = "";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    }
+});
+
+function toggleChickenView(viewType) {
+    // I-tago lang ang buong container, huwag baguhin ang laman
+    document.getElementById("mainChickenCards").classList.add("hidden");
+    
+    // Ipakita ang handout section
+    const subView = document.getElementById("subViewSection");
+    subView.classList.remove("hidden");
+
+    const title = document.getElementById("viewSectionTitle");
+    const subtitle = document.getElementById("viewSectionSubtitle");
+    const thead = document.getElementById("chickenInfoTableHead");
+    const tbody = document.getElementById("chickenInfoTableBody");
+
+    // Clear contents lang ng table
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+
+    if (viewType === 'breeds') {
+        title.innerText = "Poultry Breeds Reference Guide";
+        subtitle.innerText = "Information on egg volume, spacing, and daily feeding.";
+        thead.innerHTML = `<tr><th>Breed</th><th>Space</th><th>Yield</th></tr>`;
+        tbody.innerHTML = `<tr><td>Layers</td><td>2-3 sq.ft</td><td>250-300 eggs</td></tr>
+                           <tr><td>Broilers</td><td>1.5-2 sq.ft</td><td>Harvest in 5-6 wks</td></tr>`;
+    } else if (viewType === 'stages') {
+        title.innerText = "Lifecycle & Production Stages";
+        subtitle.innerText = "Management indicators based on maturity.";
+        thead.innerHTML = `<tr><th>Stage</th><th>Target Age</th><th>Focus</th></tr>`;
+        tbody.innerHTML = `<tr><td>Chicks</td><td>D1 - W4</td><td>Temp Control</td></tr>
+                           <tr><td>Growers</td><td>W5 - W16</td><td>Developer Feed</td></tr>`;
+    } else if (viewType === 'sanitation') {
+        title.innerText = "Biosecurity & Cleaning Log";
+        subtitle.innerText = "Standard checklist for disease control.";
+        thead.innerHTML = `<tr><th>Task</th><th>Frequency</th><th>Importance</th></tr>`;
+        tbody.innerHTML = `<tr><td>Feeder Wash</td><td>Daily</td><td>High</td></tr>
+                           <tr><td>Disinfection</td><td>Per Batch</td><td>High</td></tr>`;
+    }
+
+    if (window.lucide) lucide.createIcons();
+}
+
+function goBackToCards() {
+    // Ibalik ang main container
+    document.getElementById("mainChickenCards").classList.remove("hidden");
+    // Itago ang handout
+    document.getElementById("subViewSection").classList.add("hidden");
 }
