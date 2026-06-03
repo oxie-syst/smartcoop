@@ -659,7 +659,6 @@ function generatePlan() {
     ventilation +
     chickenCost;
 
-<<<<<<< HEAD
 
     const previewBox = document.querySelector(".preview-box");
   if (previewBox) {
@@ -671,27 +670,9 @@ function generatePlan() {
       </div>
     `;
   }
-=======
-// for sample lang to para may lumabas
-const previewBox = document.querySelector(".preview-box");
-const basePath = `img/${length}x${width}`;
->>>>>>> 55257be225edf613c4e4b934913953cbd2820a03
 
-if (previewBox) {
-  previewBox.innerHTML = `
-    <img src="${basePath}.png" 
-         alt="Coop Design ${length}x${width}" 
-         style="width: 100%; height: auto; border-radius: 12px;"
-         onerror="if(this.src.includes('.png')) { this.src='${basePath}.jpg'; } else { this.src='img/default.png'; }">
-    
-    <div class="preview-info">
-      <p>Design: ${length}m x ${width}m</p>
-    </div>
-  `;
-}
-}
-
-  document.getElementById("previewInfo").innerHTML =`${length}m × ${width}m<br><small>${area}m² area</small>`;
+  document.getElementById("previewInfo").innerHTML =
+    `${length}m × ${width}m<br><small>${area}m² area</small>`;
 
   document.getElementById("capacityResult").textContent = chickens;
   const capacityStatus = document.getElementById("capacityStatus");
@@ -790,7 +771,7 @@ if (previewBox) {
     total,
     status: "active"
   };
-
+}
 function loadPlans() {
   const container = document.getElementById("savedPlans");
   if (!container) return;
@@ -2469,11 +2450,6 @@ const featureInfo = {
         desc: 'Keep your flock safe with AI-powered guidance. Input symptoms and receive instant preliminary health advice and management tips to prevent disease spread.',
         img: 'img/AI Health Checker.png'
     },
-    'records': {
-        title: 'Record Management',
-        desc: 'Act as a central hub for tracking all farm data, including expenses, egg production, mortality, active chicken flock, and meat output, ensuring organized and efficient farm management.',
-        img: 'img/recordmanagement.png'
-    },
     'breed': {
         title: 'Breed Recommendation',
         desc: 'Not sure which chicken to raise? Our system suggests the best breeds based on your climate, available space, and production goals—whether for eggs or meat.',
@@ -2488,13 +2464,8 @@ const featureInfo = {
         title: 'Smart Alerts',
         desc: 'Stay on top of your farm tasks. Receive real-time reminders for feeding schedules, coop cleaning, and vital vaccination dates to ensure zero missed tasks.',
         img: 'img/Alerts.png'
-    },
-    'chicken-info': {
-        title: 'Chicken Info',
-        desc: 'A comprehensive reference guide providing insights into various poultry breeds, growth stages, and essential sanitation protocols to maintain farm biosecurity.',
-        img: 'img/Chicken Info.png'
     }
-}
+};
 
 function showFeature(key) {
     const display = document.getElementById('feature-display');
@@ -2602,4 +2573,3 @@ function goBackToCards() {
     // Itago ang handout
     document.getElementById("subViewSection").classList.add("hidden");
 }
-
