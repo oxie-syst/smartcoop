@@ -586,10 +586,23 @@ function savePlans(plans) {
   localStorage.setItem("coopPlans", JSON.stringify(plans));
 }
 function generatePlan() {
-  const name = document.getElementById("coopName").value;
-  const length = Number(document.getElementById("length").value);
-  const width = Number(document.getElementById("width").value);
+  console.log("Generating plan...");
+  
+  const sizeValue = document.getElementById("coopSize").value;
+  console.log("Selected Size:", sizeValue); //
+  
+  if (!sizeValue) {
+    alert("Please select a coop size!");
+    return;
+  }
+
+  const [length, width] = sizeValue.split(',').map(Number);
+  console.log("Dimensions:", length, width); //
+
   const chickens = Number(document.getElementById("chickens").value);
+  console.log("Chickens:", chickens); // 
+
+
   if (length <= 0 || width <= 0 || chickens <= 0) {
     alert("Please enter valid dimensions and number of chickens.");
     return;
@@ -606,6 +619,11 @@ function generatePlan() {
   const area = length * width;
   const spacePerChicken = area / chickens;
   const optimalSpace = type.includes("Layers") ? 0.3 : 0.25;
+  const maxCapacity = Math.floor(area / optimalSpace);
+  if (chickens > maxCapacity) {
+    alert(`Babala: Ang ${length}x${width} na coop ay para sa ${maxCapacity} manok lang. Sobra ang dami ng manok mo!`);
+    return; // 
+  }
   const capacityPercentage = Math.min((spacePerChicken / optimalSpace) * 100, 150);
 
   const construction = area * 1200;
@@ -627,19 +645,25 @@ function generatePlan() {
     ventilation +
     chickenCost;
 
-    const previewBox = document.querySelector(".preview-box");
-  if (previewBox) {
-    previewBox.innerHTML = `
-      <img src="img/1x1.png" alt="3D Coop Plan" style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px;">
-      <div class="preview-info" id="previewInfo">
-        ${length}m × ${width}m<br>
-        <small>${area.toFixed(2)}m² area</small>
-      </div>
-    `;
-  }
+// for sample lang to para may lumabas
+const previewBox = document.querySelector(".preview-box");
+const basePath = `img/${length}x${width}`;
 
-  document.getElementById("previewInfo").innerHTML =
-    `${length}m × ${width}m<br><small>${area}m² area</small>`;
+if (previewBox) {
+  previewBox.innerHTML = `
+    <img src="${basePath}.png" 
+         alt="Coop Design ${length}x${width}" 
+         style="width: 100%; height: auto; border-radius: 12px;"
+         onerror="if(this.src.includes('.png')) { this.src='${basePath}.jpg'; } else { this.src='img/default.png'; }">
+    
+    <div class="preview-info">
+      <p>Design: ${length}m x ${width}m</p>
+    </div>
+  `;
+}
+}
+
+  document.getElementById("previewInfo").innerHTML =`${length}m × ${width}m<br><small>${area}m² area</small>`;
 
   document.getElementById("capacityResult").textContent = chickens;
   const capacityStatus = document.getElementById("capacityStatus");
@@ -738,7 +762,7 @@ function generatePlan() {
     total,
     status: "active"
   };
-}
+
 function loadPlans() {
   const container = document.getElementById("savedPlans");
   if (!container) return;
@@ -2417,6 +2441,11 @@ const featureInfo = {
         desc: 'Keep your flock safe with AI-powered guidance. Input symptoms and receive instant preliminary health advice and management tips to prevent disease spread.',
         img: 'img/AI Health Checker.png'
     },
+    'records': {
+        title: 'Record Management',
+        desc: 'Act as a central hub for tracking all farm data, including expenses, egg production, mortality, active chicken flock, and meat output, ensuring organized and efficient farm management.',
+        img: 'img/recordmanagement.png'
+    },
     'breed': {
         title: 'Breed Recommendation',
         desc: 'Not sure which chicken to raise? Our system suggests the best breeds based on your climate, available space, and production goals—whether for eggs or meat.',
@@ -2431,8 +2460,13 @@ const featureInfo = {
         title: 'Smart Alerts',
         desc: 'Stay on top of your farm tasks. Receive real-time reminders for feeding schedules, coop cleaning, and vital vaccination dates to ensure zero missed tasks.',
         img: 'img/Alerts.png'
+    },
+    'chicken-info': {
+        title: 'Chicken Info',
+        desc: 'A comprehensive reference guide providing insights into various poultry breeds, growth stages, and essential sanitation protocols to maintain farm biosecurity.',
+        img: 'img/Chicken Info.png'
     }
-};
+}
 
 function showFeature(key) {
     const display = document.getElementById('feature-display');
@@ -2540,3 +2574,4 @@ function goBackToCards() {
     // Itago ang handout
     document.getElementById("subViewSection").classList.add("hidden");
 }
+
