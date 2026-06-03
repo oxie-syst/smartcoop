@@ -97,5 +97,16 @@
   </main>
 
   <script src="js/auth.js"></script>
+  <script>
+if(window.lucide) lucide.createIcons();
+
+function showTab(tab){
+  document.querySelectorAll(".settings-tab").forEach(t=>t.classList.add("hidden"));
+  document.getElementById(tab).classList.remove("hidden");
+
+  document.querySelectorAll(".settings-tabs button").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+}
+</script>
 </body>
 </html>
