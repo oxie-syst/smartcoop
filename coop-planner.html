@@ -77,11 +77,19 @@
           </div>
 
           <div class="input-group">
+<<<<<<< HEAD
             <label>Coop Size (Select Dimension)</label>
             <select id="coopSize" required>
               <option value="" disabled selected>Select Size (e.g., 1x1)</option>
               </select>
+=======
+            <label>Coop Size (m)</label>
+            <select id="coopSize">
+            <option value="" disabled selected>Select Size (e.g., 1x1)</option>
+            </select>
+>>>>>>> 55257be225edf613c4e4b934913953cbd2820a03
           </div>
+ 
 
           <div class="input-group">
             <label>Chicken Type</label>
@@ -206,6 +214,28 @@
   </main>
 
   <script src="js/auth.js"></script>
+<script>
+  function populateSizeDropdown() {
+    const sizeSelect = document.getElementById('coopSize');
+    if (!sizeSelect) return; 
+    sizeSelect.innerHTML = '<option value="" disabled selected>Select Size (e.g., 1x1)</option>';
+
+    for (let i = 1; i <= 10; i++) {
+      let sizeText = i + "x" + i + " m";
+      let option = document.createElement('option');
+      
+      option.value = i + "," + i;
+      option.text = sizeText;
+      sizeSelect.appendChild(option);
+    }
+  }
+  window.addEventListener('load', function() {
+    if (typeof loadUserInfo === 'function') loadUserInfo();
+    if (typeof loadPlans === 'function') loadPlans();
+    populateSizeDropdown();
+    if (window.lucide) lucide.createIcons();
+  });
+</script>
   <script>
     function populateSizeDropdown() {
     const sizeSelect = document.getElementById('coopSize');
