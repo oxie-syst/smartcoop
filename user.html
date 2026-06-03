@@ -24,8 +24,8 @@
          <a href="alerts.html"><i data-lucide="bell"></i> Alerts & Reminders</a>
          <a href="record-management.html"><i data-lucide="file-text"></i> Record Management</a>
          <a href="reports.html"><i data-lucide="bar-chart"></i> Reports</a>
-         <a href="chicken-info.html" class="active"><i data-lucide="bird"></i> Chicken Info</a>
-         <a href="settings.html" class="active"><i data-lucide="settings"></i> Settings</a>
+         <a href="chicken-info.html"><i data-lucide="bird"></i> Chicken Info</a>
+         <a href="settings.html"><i data-lucide="settings"></i> Settings</a>
     </nav>
   </aside>
 
@@ -245,5 +245,16 @@
 </div>
 
   <script src="js/auth.js"></script>
+  <script>
+if(window.lucide) lucide.createIcons();
+
+function showTab(tab){
+  document.querySelectorAll(".settings-tab").forEach(t=>t.classList.add("hidden"));
+  document.getElementById(tab).classList.remove("hidden");
+
+  document.querySelectorAll(".settings-tabs button").forEach(b=>b.classList.remove("active"));
+  event.target.classList.add("active");
+}
+</script>
 </body>
 </html>

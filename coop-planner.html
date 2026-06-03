@@ -24,8 +24,8 @@
       <a href="alerts.html"><i data-lucide="bell"></i> Alerts & Reminders</a>
       <a href="record-management.html"><i data-lucide="file-text"></i> Record Management</a>
       <a href="reports.html"><i data-lucide="bar-chart"></i> Reports</a>
-      <a href="chicken-info.html" class="active"><i data-lucide="bird"></i> Chicken Info</a>
-      <a href="settings.html" class="active"><i data-lucide="settings"></i> Settings</a>
+      <a href="chicken-info.html"><i data-lucide="bird"></i> Chicken Info</a>
+      <a href="settings.html"><i data-lucide="settings"></i> Settings</a>
     </nav>
   </aside>
 
@@ -76,16 +76,11 @@
             <input id="coopName" value="New Coop">
           </div>
 
-          <div class="input-row">
-            <div class="input-group">
-              <label>Length (m)</label>
-              <input id="length" type="number" min="1" step="0.5">
-            </div>
-
-            <div class="input-group">
-              <label>Width (m)</label>
-              <input id="width" type="number" min="1" step="0.5">
-            </div>
+          <div class="input-group">
+            <label>Coop Size (Select Dimension)</label>
+            <select id="coopSize" required>
+              <option value="" disabled selected>Select Size (e.g., 1x1)</option>
+              </select>
           </div>
 
           <div class="input-group">
@@ -212,7 +207,30 @@
 
   <script src="js/auth.js"></script>
   <script>
+    function populateSizeDropdown() {
+    const sizeSelect = document.getElementById('coopSize');
+    if (!sizeSelect) return; 
+    sizeSelect.innerHTML = '<option value="" disabled selected>Select Size (e.g., 1x1)</option>';
+
+    for (let i = 1; i <= 10; i++) {
+      let sizeText = i + "x" + i + " m";
+      let option = document.createElement('option');
+      
+      option.value = i + "," + i;
+      option.text = sizeText;
+      sizeSelect.appendChild(option);
+    }
+  }
+  window.addEventListener('load', function() {
+    if (typeof loadUserInfo === 'function') loadUserInfo();
+    if (typeof loadPlans === 'function') loadPlans();
+    populateSizeDropdown();
+    if (window.lucide) lucide.createIcons();
+  });
+</script>
+  <script>
     if (window.lucide) lucide.createIcons();
   </script>
+  
 </body>
 </html>

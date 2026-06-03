@@ -585,11 +585,38 @@ function toggleProfileMenu() {
 function savePlans(plans) {
   localStorage.setItem("coopPlans", JSON.stringify(plans));
 }
+
+function populateSizeDropdown() {
+    const sizeSelect = document.getElementById('coopSize');
+    if (!sizeSelect) return; 
+    
+    sizeSelect.innerHTML = '<option value="" disabled selected>Select Size</option>';
+
+    for (let i = 1; i <= 10; i++) {
+        let option = document.createElement('option');
+        option.value = i + "," + i;
+        option.text = i + " x " + i + " meters";
+        sizeSelect.appendChild(option);
+    }
+}
 function generatePlan() {
-  const name = document.getElementById("coopName").value;
-  const length = Number(document.getElementById("length").value);
-  const width = Number(document.getElementById("width").value);
+  console.log("Generating plan...");
+  
+  const sizeValue = document.getElementById("coopSize").value;
+  console.log("Selected Size:", sizeValue); //
+  
+  if (!sizeValue) {
+    alert("Please select a coop size!");
+    return;
+  }
+
+  const [length, width] = sizeValue.split(',').map(Number);
+  console.log("Dimensions:", length, width); //
+
   const chickens = Number(document.getElementById("chickens").value);
+  console.log("Chickens:", chickens); // 
+
+
   if (length <= 0 || width <= 0 || chickens <= 0) {
     alert("Please enter valid dimensions and number of chickens.");
     return;
@@ -606,6 +633,11 @@ function generatePlan() {
   const area = length * width;
   const spacePerChicken = area / chickens;
   const optimalSpace = type.includes("Layers") ? 0.3 : 0.25;
+  const maxCapacity = Math.floor(area / optimalSpace);
+  if (chickens > maxCapacity) {
+    alert(`Babala: Ang ${length}x${width} na coop ay para sa ${maxCapacity} manok lang. Sobra ang dami ng manok mo!`);
+    return; // 
+  }
   const capacityPercentage = Math.min((spacePerChicken / optimalSpace) * 100, 150);
 
   const construction = area * 1200;
@@ -626,6 +658,7 @@ function generatePlan() {
     lighting +
     ventilation +
     chickenCost;
+
 
     const previewBox = document.querySelector(".preview-box");
   if (previewBox) {
